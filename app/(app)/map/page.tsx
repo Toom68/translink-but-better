@@ -1,0 +1,48 @@
+"use client";
+
+import { useState } from "react";
+import { VehicleMap } from "@/components/VehicleMap";
+import { cn } from "@/lib/utils";
+import type { TransitMode } from "@/lib/gtfs/types";
+import { Bus, Train, Sailboat, TramFront, Layers } from "lucide-react";
+
+const MODE_TABS: { mode: TransitMode; label: string; icon: typeof Bus }[] = [
+  { mode: "all", label: "All", icon: Layers },
+  { mode: "bus", label: "Bus", icon: Bus },
+  { mode: "rail", label: "Train", icon: Train },
+  { mode: "ferry", label: "Ferry", icon: Sailboat },
+  { mode: "tram", label: "Tram", icon: TramFront },
+];
+
+export default function MapPage() {
+  const [mode, setMode] = useState<TransitMode>("all");
+
+  return (
+    <div className="fixed inset-0 top-0 bottom-16">
+      {/* Mode filter tabs */}
+      <div className="absolute top-3 left-1/2 -translate-x-1/2 z-10 bg-bg-elevated/95 backdrop-blur-md border border-border rounded-full shadow-md px-1 py-1 flex items-center gap-0.5 safe-top">
+        {MODE_TABS.map((tab) => {
+          const Icon = tab.icon;
+          const active = mode === tab.mode;
+          return (
+            <button
+              key={tab.mode}
+              onClick={() => setMode(tab.mode)}
+              className={cn(
+                "flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-colors",
+                active
+                  ? "bg-accent text-white"
+                  : "text-text-secondary hover:text-text"
+              )}
+            >
+              <Icon size={14} />
+              {tab.label}
+            </button>
+          );
+        })}
+      </div>
+
+      <VehicleMap mode={mode} />
+    </div>
+  );
+}
