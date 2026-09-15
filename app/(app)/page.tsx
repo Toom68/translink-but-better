@@ -44,14 +44,10 @@ export default function LibraryPage() {
     useSensor(PointerSensor, { activationConstraint: { distance: 8 } })
   );
 
-  // Load saved stops from Supabase
   useEffect(() => {
-    if (userId) {
-      load(userId);
-    }
+    if (userId) load(userId);
   }, [userId, load]);
 
-  // Load GTFS static data
   useEffect(() => {
     (async () => {
       const [stops, routes] = await Promise.all([loadStops(), loadRoutesMap()]);
@@ -63,16 +59,11 @@ export default function LibraryPage() {
   function handleDragEnd(event: DragEndEvent) {
     const { active, over } = event;
     if (!over || active.id === over.id || !userId) return;
-
     const oldIndex = savedStops.findIndex((s) => s.id === active.id);
     const newIndex = savedStops.findIndex((s) => s.id === over.id);
     if (oldIndex < 0 || newIndex < 0) return;
-
     const newOrder = arrayMove(savedStops, oldIndex, newIndex);
-    reorder(
-      userId,
-      newOrder.map((s) => s.stop_id)
-    );
+    reorder(userId, newOrder.map((s) => s.stop_id));
   }
 
   function startEdit(stop: SavedStop) {
@@ -83,17 +74,15 @@ export default function LibraryPage() {
   function saveEdit() {
     if (!editingId || !userId) return;
     const stop = savedStops.find((s) => s.id === editingId);
-    if (stop) {
-      update(userId, stop.stop_id, { custom_label: editLabel || null });
-    }
+    if (stop) update(userId, stop.stop_id, { custom_label: editLabel || null });
     setEditingId(null);
     setEditLabel("");
   }
 
   if (userLoading || (!loaded && !userId)) {
     return (
-      <div className="px-4 pt-6 pb-4">
-        <h1 className="text-2xl font-bold mb-4">My Stops</h1>
+      <div className="px-5 pt-10 pb-4">
+        <h1 className="text-3xl font-bold tracking-tight mb-6">My Stops</h1>
         <div className="space-y-3">
           <StopCardSkeleton />
           <StopCardSkeleton />
@@ -103,22 +92,22 @@ export default function LibraryPage() {
   }
 
   return (
-    <div className="px-4 pt-6 pb-4">
-      <div className="flex items-center justify-between mb-5">
-        <h1 className="text-2xl font-bold">My Stops</h1>
+    <div className="px-5 pt-10 pb-4">
+      <div className="flex items-center justify-between mb-6">
+        <h1 className="text-3xl font-bold tracking-tight">My Stops</h1>
         <div className="flex items-center gap-2">
           {savedStops.length > 0 && (
             <Button
               size="icon"
               variant="secondary"
               onClick={() => setEditMode(!editMode)}
-              className={cn(editMode && "bg-accent text-white")}
+              className={cn(editMode && "bg-accent text-white border-accent")}
             >
               <Pencil size={18} />
             </Button>
           )}
           <Link href="/search">
-            <Button size="icon" variant="secondary">
+            <Button size="icon">
               <Plus size={22} />
             </Button>
           </Link>
@@ -127,7 +116,7 @@ export default function LibraryPage() {
 
       {savedStops.length === 0 ? (
         <EmptyState
-          icon={<Library size={48} strokeWidth={1.5} />}
+          icon={<Library size={28} strokeWidth={1.5} />}
           title="No saved stops yet"
           description="Search for bus stops, train stations, or ferry terminals to add them to your library."
           action={
@@ -158,9 +147,7 @@ export default function LibraryPage() {
             <div className="space-y-3">
               {savedStops.map((saved) => {
                 const stop = gtfsStops.get(saved.stop_id);
-                if (!stop) {
-                  return <StopCardSkeleton key={saved.id} />;
-                }
+                if (!stop) return <StopCardSkeleton key={saved.id} />;
 
                 if (editingId === saved.id) {
                   return (
@@ -171,21 +158,17 @@ export default function LibraryPage() {
                           value={editLabel}
                           onChange={(e) => setEditLabel(e.target.value)}
                           placeholder={stop.name}
-                          className="flex-1 h-10 px-3 bg-bg-subtle border border-border rounded-[var(--radius-sm)] text-sm outline-none focus:border-accent"
+                          className="flex-1 h-10 px-4 bg-bg-subtle border border-border rounded-full text-sm outline-none focus:border-accent"
                           autoFocus
                         />
                         <Button size="icon" variant="ghost" onClick={saveEdit}>
                           <Check size={20} className="text-accent" />
                         </Button>
-                        <Button
-                          size="icon"
-                          variant="ghost"
-                          onClick={() => setEditingId(null)}
-                        >
+                        <Button size="icon" variant="ghost" onClick={() => setEditingId(null)}>
                           <X size={20} />
                         </Button>
                       </div>
-                      <p className="text-xs text-text-muted">
+                      <p className="text-xs text-text-muted pl-4">
                         Stop {stop.code || stop.id}
                       </p>
                     </Card>
@@ -266,11 +249,11 @@ function SortableStopCard({
   return (
     <div ref={setNodeRef} style={style} {...attributes}>
       <Link href={`/stops/${stop.id}`} className="block">
-        <Card className="p-4 active:scale-[0.99] transition-transform">
-          <div className="flex items-start gap-3 mb-2">
+        <Card className="p-4 active:scale-[0.98] transition-transform duration-200">
+          <div className="flex items-start justify-between mb-3">
             <div className="flex-1 min-w-0">
               <h3 className="font-semibold text-text truncate">{displayName}</h3>
-              <p className="text-xs text-text-muted">
+              <p className="text-xs text-text-muted mt-0.5">
                 Stop {stop.code || stop.id}
               </p>
             </div>
@@ -283,11 +266,11 @@ function SortableStopCard({
           )}
 
           {arrivals && arrivals.length > 0 ? (
-            <div className="space-y-1">
+            <div className="space-y-0.5">
               {arrivals.slice(0, 3).map((arrival, i) => {
                 const route = routesMap.get(arrival.routeId);
                 const routeName = route?.shortName || arrival.routeId;
-                const routeColor = route?.color ? `#${route.color}` : "#525252";
+                const routeColor = route?.color ? `#${route.color}` : "#71717a";
                 const now = Math.floor(Date.now() / 1000);
                 const time = arrival.predictedTime ?? arrival.scheduledTime ?? 0;
                 const diff = time - now;
@@ -295,9 +278,9 @@ function SortableStopCard({
                   diff < 0 ? "now" : diff < 60 ? `${diff}s` : `${Math.floor(diff / 60)} min`;
 
                 return (
-                  <div key={`${arrival.tripId}-${i}`} className="flex items-center gap-3 py-1">
+                  <div key={`${arrival.tripId}-${i}`} className="flex items-center gap-3 py-1.5">
                     <div
-                      className="flex items-center justify-center min-w-[44px] h-9 px-2 rounded-md text-xs font-bold flex-shrink-0"
+                      className="flex items-center justify-center min-w-[40px] h-8 px-2 rounded-lg text-xs font-bold flex-shrink-0"
                       style={{
                         backgroundColor: routeColor,
                         color: route?.textColor ? `#${route.textColor}` : "#fff",
@@ -305,7 +288,7 @@ function SortableStopCard({
                     >
                       {routeName}
                     </div>
-                    <p className="flex-1 text-sm text-text truncate">
+                    <p className="flex-1 text-sm text-text-secondary truncate">
                       {arrival.tripHeadsign || route?.longName || ""}
                     </p>
                     <p className="text-sm font-semibold tabular-nums flex-shrink-0">

@@ -17,8 +17,6 @@ export default function SettingsPage() {
     supabase.auth.getUser().then(({ data: { user } }) => {
       setEmail(user?.email ?? null);
     });
-
-    // Load theme from localStorage
     const saved = localStorage.getItem("theme") || "system";
     setTheme(saved);
   }, []);
@@ -41,19 +39,19 @@ export default function SettingsPage() {
   }
 
   return (
-    <div className="px-4 pt-6 pb-4">
-      <h1 className="text-2xl font-bold mb-5">Settings</h1>
+    <div className="px-5 pt-10 pb-4">
+      <h1 className="text-3xl font-bold tracking-tight mb-6">Settings</h1>
 
       {/* Account */}
-      <h2 className="text-sm font-semibold text-text-secondary mb-2">Account</h2>
-      <Card className="p-4 mb-5">
+      <h2 className="text-sm font-semibold text-text-secondary mb-3 px-1">Account</h2>
+      <Card className="p-4 mb-6">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-full bg-accent flex items-center justify-center text-white font-semibold">
+          <div className="w-11 h-11 rounded-full bg-accent flex items-center justify-center text-white font-semibold text-lg">
             {email?.charAt(0).toUpperCase() ?? "?"}
           </div>
           <div className="flex-1 min-w-0">
             <p className="font-medium text-sm truncate">{email ?? "Not signed in"}</p>
-            <p className="text-xs text-text-muted">Signed in via magic link</p>
+            <p className="text-xs text-text-muted mt-0.5">Signed in via magic link</p>
           </div>
         </div>
         <Button
@@ -67,8 +65,8 @@ export default function SettingsPage() {
       </Card>
 
       {/* Theme */}
-      <h2 className="text-sm font-semibold text-text-secondary mb-2">Appearance</h2>
-      <Card className="p-2 mb-5">
+      <h2 className="text-sm font-semibold text-text-secondary mb-3 px-1">Appearance</h2>
+      <Card className="p-3 mb-6">
         <div className="grid grid-cols-3 gap-2">
           {[
             { value: "light", label: "Light", icon: Sun },
@@ -81,13 +79,13 @@ export default function SettingsPage() {
                 key={opt.value}
                 onClick={() => applyTheme(opt.value)}
                 className={cn(
-                  "flex flex-col items-center gap-2 py-3 rounded-[var(--radius-sm)] transition-colors",
+                  "flex flex-col items-center gap-2 py-4 rounded-[var(--radius-sm)] transition-all duration-200",
                   theme === opt.value
                     ? "bg-accent-soft text-accent"
                     : "text-text-secondary hover:bg-bg-subtle"
                 )}
               >
-                <Icon size={20} />
+                <Icon size={22} />
                 <span className="text-xs font-medium">{opt.label}</span>
               </button>
             );
@@ -96,20 +94,20 @@ export default function SettingsPage() {
       </Card>
 
       {/* About */}
-      <h2 className="text-sm font-semibold text-text-secondary mb-2">About</h2>
+      <h2 className="text-sm font-semibold text-text-secondary mb-3 px-1">About</h2>
       <Card className="p-4">
         <div className="flex items-center gap-3 mb-3">
-          <div className="w-10 h-10 rounded-xl bg-accent flex items-center justify-center">
+          <div className="w-11 h-11 rounded-full bg-accent flex items-center justify-center">
             <Bus size={20} className="text-white" />
           </div>
           <div>
             <p className="font-semibold text-sm">TransLink But Better</p>
-            <p className="text-xs text-text-muted">v1.0.0</p>
+            <p className="text-xs text-text-muted mt-0.5">v1.0.0</p>
           </div>
         </div>
-        <div className="text-xs text-text-secondary space-y-1">
+        <div className="text-xs text-text-secondary space-y-1.5 leading-relaxed">
           <p>Real-time data from TransLink Queensland (CC-BY-4.0)</p>
-          <p>Map tiles from OpenFreeMap / OpenStreetMap contributors</p>
+          <p>Map tiles from CARTO / OpenStreetMap contributors</p>
           <p>Built for Brisbane transit riders</p>
         </div>
       </Card>

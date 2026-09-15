@@ -1,14 +1,46 @@
 "use client";
 
 import { useRef, useEffect, useState, useCallback } from "react";
-import Map, { Marker, Source, Layer, NavigationControl, GeolocateControl } from "react-map-gl/maplibre";
+import MapGL, { Marker, NavigationControl, GeolocateControl } from "react-map-gl/maplibre";
 import "maplibre-gl/dist/maplibre-gl.css";
 import { useVehicles } from "@/lib/hooks/use-realtime";
 import { loadRoutesMap, getRouteColor } from "@/lib/gtfs/static";
 import type { VehiclePosition, TransitMode, GTFSRoute } from "@/lib/gtfs/types";
-import { cn } from "@/lib/utils";
+import type { StyleSpecification } from "maplibre-gl";
 
-const OPENFREEMAP_STYLE = "https://tiles.openfreemap.org/styles/positron";
+// CARTO free basemaps at basemaps.cartocdn.com don't need an API key.
+// If you have a CARTO key for higher rate limits, it uses a different endpoint.
+const LIGHT_MAP_STYLE: StyleSpecification = {
+  version: 8,
+  sources: {
+    basemap: {
+      type: "raster",
+      tiles: [
+        "https://basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png",
+      ],
+      tileSize: 256,
+      attribution:
+        '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
+    },
+  },
+  layers: [{ id: "basemap", type: "raster", source: "basemap" }],
+};
+
+const DARK_MAP_STYLE: StyleSpecification = {
+  version: 8,
+  sources: {
+    basemap: {
+      type: "raster",
+      tiles: [
+        "https://basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png",
+      ],
+      tileSize: 256,
+      attribution:
+        '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
+    },
+  },
+  layers: [{ id: "basemap", type: "raster", source: "basemap" }],
+};
 
 const BRISBANE_CENTER = {
   longitude: 153.0260,
@@ -27,11 +59,14 @@ export function VehicleMap({ mode, onVehicleClick }: VehicleMapProps) {
   const [routesMap, setRoutesMap] = useState<globalThis.Map<string, GTFSRoute>>(new globalThis.Map());
   const [selectedVehicle, setSelectedVehicle] = useState<VehiclePosition | null>(null);
   const [dark, setDark] = useState(false);
+  const [mapError, setMapError] = useState<string | null>(null);
+  const [mapLoaded, setMapLoaded] = useState(false);
+  const [themeReady, setThemeReady] = useState(false);
 
-  // Detect dark mode
   useEffect(() => {
     const mq = window.matchMedia("(prefers-color-scheme: dark)");
     setDark(mq.matches);
+    setThemeReady(true);
     const handler = (e: MediaQueryListEvent) => setDark(e.matches);
     mq.addEventListener("change", handler);
     return () => mq.removeEventListener("change", handler);
@@ -50,13 +85,38 @@ export function VehicleMap({ mode, onVehicleClick }: VehicleMapProps) {
     [onVehicleClick]
   );
 
+  if (mapError) {
+    return (
+      <div className="w-full h-full flex items-center justify-center bg-bg-subtle">
+        <div className="text-center p-6">
+          <p className="text-sm font-semibold text-text mb-1">Map failed to load</p>
+          <p className="text-xs text-text-muted">{mapError}</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!themeReady) {
+    return (
+      <div className="w-full h-full flex items-center justify-center bg-bg-subtle">
+        <div className="text-xs text-text-secondary">Loading map...</div>
+      </div>
+    );
+  }
+
   return (
-    <div className="relative w-full h-full">
-      <Map
+    <div className="relative w-full h-full" style={{ minHeight: 200 }}>
+      <MapGL
+        key={dark ? "dark" : "light"}
         ref={mapRef as never}
         initialViewState={BRISBANE_CENTER}
-        mapStyle={dark ? "https://tiles.openfreemap.org/styles/dark" : OPENFREEMAP_STYLE}
-        style={{ width: "100%", height: "100%" }}
+        mapStyle={dark ? DARK_MAP_STYLE : LIGHT_MAP_STYLE}
+        style={{ width: "100%", height: "100%", position: "absolute", inset: 0 }}
+        onError={(e: { error?: Error }) => {
+          console.error("MapLibre error:", e);
+          setMapError(e?.error?.message || "Unknown map error");
+        }}
+        onLoad={() => setMapLoaded(true)}
       >
         <NavigationControl position="top-right" />
         <GeolocateControl
@@ -100,18 +160,18 @@ export function VehicleMap({ mode, onVehicleClick }: VehicleMapProps) {
             </Marker>
           );
         })}
-      </Map>
+      </MapGL>
 
       {/* Loading indicator */}
-      {isLoading && (
-        <div className="absolute top-4 left-1/2 -translate-x-1/2 bg-bg-elevated/90 backdrop-blur-sm border border-border rounded-full px-4 py-2 text-xs text-text-secondary shadow-md">
-          Loading vehicles...
+      {(isLoading || !mapLoaded) && (
+        <div className="absolute top-16 left-1/2 -translate-x-1/2 bg-bg-elevated/90 backdrop-blur-sm border border-border rounded-full px-4 py-2 text-xs text-text-secondary shadow-md z-20">
+          {isLoading ? "Loading vehicles..." : "Loading map..."}
         </div>
       )}
 
       {/* Vehicle count */}
-      {vehicles && (
-        <div className="absolute bottom-4 left-4 bg-bg-elevated/90 backdrop-blur-sm border border-border rounded-full px-3 py-1.5 text-xs text-text-secondary shadow-md">
+      {vehicles && mapLoaded && (
+        <div className="absolute bottom-4 left-4 bg-bg-elevated/90 backdrop-blur-sm border border-border rounded-full px-3 py-1.5 text-xs text-text-secondary shadow-md z-20">
           {vehicles.length} vehicles
         </div>
       )}

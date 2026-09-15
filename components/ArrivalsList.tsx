@@ -1,20 +1,7 @@
 "use client";
 
-import { Badge } from "@/components/ui";
 import { formatCountdown, formatClockTime, formatDelay, getDelayStatus, cn } from "@/lib/utils";
 import type { Arrival } from "@/lib/gtfs/types";
-import { Bus, Train, Sailboat, TramFront } from "lucide-react";
-
-function ModeIcon({ mode, size = 16 }: { mode: string; size?: number }) {
-  const icons: Record<string, typeof Bus> = {
-    bus: Bus,
-    rail: Train,
-    ferry: Sailboat,
-    tram: TramFront,
-  };
-  const Icon = icons[mode] ?? Bus;
-  return <Icon size={size} />;
-}
 
 export function ArrivalsList({
   arrivals,
@@ -37,11 +24,11 @@ export function ArrivalsList({
   const visible = arrivals.slice(0, max);
 
   return (
-    <div className="space-y-1">
+    <div className="space-y-0">
       {visible.map((arrival, i) => {
         const route = routesMap?.get(arrival.routeId);
         const routeName = route?.shortName || arrival.routeId;
-        const routeColor = route?.color ? `#${route.color}` : "#525252";
+        const routeColor = route?.color ? `#${route.color}` : "#71717a";
         const delayStatus = getDelayStatus(arrival.delay);
         const headsign = arrival.tripHeadsign || route?.longName || "";
 
@@ -49,13 +36,14 @@ export function ArrivalsList({
           <div
             key={`${arrival.tripId}-${i}`}
             className={cn(
-              "flex items-center gap-3 py-1.5",
-              !compact && "border-b border-border last:border-0 py-3"
+              "flex items-center gap-3",
+              !compact && "border-b border-border last:border-0 py-3",
+              compact && "py-1.5"
             )}
           >
             {/* Route badge */}
             <div
-              className="flex items-center justify-center min-w-[44px] h-9 px-2 rounded-md text-xs font-bold flex-shrink-0"
+              className="flex items-center justify-center min-w-[40px] h-8 px-2 rounded-lg text-xs font-bold flex-shrink-0"
               style={{
                 backgroundColor: routeColor,
                 color: route?.textColor ? `#${route.textColor}` : "#fff",
@@ -66,16 +54,16 @@ export function ArrivalsList({
 
             {/* Headsign */}
             <div className="flex-1 min-w-0">
-              <p className={cn("text-sm font-medium truncate", compact ? "text-text" : "text-text")}>
+              <p className="text-sm font-medium truncate text-text">
                 {headsign}
               </p>
               {!compact && (
-                <p className="text-xs text-text-muted">
+                <p className="text-xs text-text-muted mt-0.5">
                   {formatClockTime(arrival.predictedTime ?? arrival.scheduledTime)}
                   {arrival.delay != null && arrival.delay !== 0 && (
                     <span
                       className={cn(
-                        "ml-2",
+                        "ml-2 font-medium",
                         delayStatus === "late" && "text-warning",
                         delayStatus === "early" && "text-success"
                       )}

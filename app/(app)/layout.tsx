@@ -18,7 +18,7 @@ export default async function AppLayout({
   return (
     <Providers>
       <div className="flex flex-col min-h-screen bg-bg">
-        <main className="flex-1 pb-16">{children}</main>
+        <main className="flex-1 pb-24">{children}</main>
         <BottomNav />
       </div>
     </Providers>

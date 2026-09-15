@@ -18,9 +18,9 @@ export default function MapPage() {
   const [mode, setMode] = useState<TransitMode>("all");
 
   return (
-    <div className="fixed inset-0 top-0 bottom-16">
-      {/* Mode filter tabs */}
-      <div className="absolute top-3 left-1/2 -translate-x-1/2 z-10 bg-bg-elevated/95 backdrop-blur-md border border-border rounded-full shadow-md px-1 py-1 flex items-center gap-0.5 safe-top">
+    <div className="fixed inset-0 top-0 bottom-24" style={{ height: "calc(100vh - 6rem)" }}>
+      {/* Mode filter pills */}
+      <div className="absolute top-3 left-1/2 -translate-x-1/2 z-10 bg-bg-elevated/90 backdrop-blur-xl border border-border shadow-[var(--shadow-md)] rounded-full px-2 py-1.5 flex items-center gap-0.5 safe-top">
         {MODE_TABS.map((tab) => {
           const Icon = tab.icon;
           const active = mode === tab.mode;
@@ -29,9 +29,9 @@ export default function MapPage() {
               key={tab.mode}
               onClick={() => setMode(tab.mode)}
               className={cn(
-                "flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-colors",
+                "flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-medium transition-all duration-200",
                 active
-                  ? "bg-accent text-white"
+                  ? "bg-accent text-white shadow-sm"
                   : "text-text-secondary hover:text-text"
               )}
             >

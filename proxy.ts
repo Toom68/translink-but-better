@@ -14,6 +14,6 @@ export const config = {
      * - gtfs (static GTFS JSON files)
      * - api (API routes)
      */
-    "/((?!_next/static|_next/image|favicon.ico|gtfs|api|sw.js|manifest.webmanifest).*)",
+    "/((?!_next/static|_next/image|favicon.ico|gtfs|api|sw.js|manifest.webmanifest|callback).*)",
   ],
 };

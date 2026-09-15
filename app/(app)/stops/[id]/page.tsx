@@ -7,7 +7,7 @@ import { useUser } from "@/lib/hooks/use-user";
 import { useSavedStops } from "@/lib/store/saved-stops";
 import { loadStops, loadRoutesMap } from "@/lib/gtfs/static";
 import { ArrivalsList } from "@/components/ArrivalsList";
-import { Button, Card, Skeleton, EmptyState, Badge } from "@/components/ui";
+import { Button, Card, Skeleton, EmptyState } from "@/components/ui";
 import { ArrowLeft, Star, MapPin, AlertCircle, Share } from "lucide-react";
 import { haversineDistance, formatDistance } from "@/lib/utils";
 import type { GTFSStop, GTFSRoute, ServiceAlert } from "@/lib/gtfs/types";
@@ -28,17 +28,14 @@ export default function StopDetailPage() {
 
   const saved = isSaved(stopId);
 
-  // Load stop data
   useEffect(() => {
     (async () => {
       const [stops, routes] = await Promise.all([loadStops(), loadRoutesMap()]);
-      const found = stops.find((s) => s.id === stopId);
-      setStop(found ?? null);
+      setStop(stops.find((s) => s.id === stopId) ?? null);
       setRoutesMap(routes);
     })();
   }, [stopId]);
 
-  // Get user location for distance
   useEffect(() => {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
@@ -56,11 +53,8 @@ export default function StopDetailPage() {
 
   function handleSaveToggle() {
     if (!userId) return;
-    if (saved) {
-      remove(userId, stopId);
-    } else {
-      add(userId, stopId);
-    }
+    if (saved) remove(userId, stopId);
+    else add(userId, stopId);
   }
 
   function handleShare() {
@@ -75,7 +69,7 @@ export default function StopDetailPage() {
 
   if (!stop) {
     return (
-      <div className="px-4 pt-6">
+      <div className="px-5 pt-10">
         <Skeleton className="h-8 w-32 mb-4" />
         <Skeleton className="h-20 mb-3" />
         <Skeleton className="h-40" />
@@ -88,9 +82,9 @@ export default function StopDetailPage() {
     : null;
 
   return (
-    <div className="px-4 pt-6 pb-4">
+    <div className="px-5 pt-10 pb-4">
       {/* Header */}
-      <div className="flex items-center gap-3 mb-4">
+      <div className="flex items-center gap-2 mb-6">
         <Button size="icon" variant="ghost" onClick={() => router.back()}>
           <ArrowLeft size={22} />
         </Button>
@@ -109,17 +103,16 @@ export default function StopDetailPage() {
       </div>
 
       {/* Stop info */}
-      <div className="mb-5">
-        <h1 className="text-2xl font-bold mb-1">{stop.name}</h1>
-        <div className="flex items-center gap-3 text-sm text-text-secondary">
-          <span>Stop {stop.code || stop.id}</span>
+      <div className="mb-6">
+        <h1 className="text-3xl font-bold tracking-tight mb-1.5">{stop.name}</h1>
+        <div className="flex items-center gap-2 text-sm text-text-secondary">
+          <span className="px-2.5 py-1 bg-bg-subtle rounded-full text-xs font-medium">
+            Stop {stop.code || stop.id}
+          </span>
           {distance != null && (
-            <>
-              <span>·</span>
-              <span className="flex items-center gap-1">
-                <MapPin size={14} /> {formatDistance(distance)} away
-              </span>
-            </>
+            <span className="flex items-center gap-1 text-text-muted">
+              <MapPin size={14} /> {formatDistance(distance)} away
+            </span>
           )}
         </div>
       </div>

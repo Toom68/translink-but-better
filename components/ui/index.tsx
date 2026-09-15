@@ -11,17 +11,17 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
 }
 
 const variantStyles: Record<ButtonVariant, string> = {
-  primary: "bg-accent text-white hover:bg-accent-hover active:scale-[0.98]",
-  secondary: "bg-bg-elevated border border-border text-text hover:bg-bg-subtle",
-  ghost: "text-text hover:bg-bg-subtle",
-  danger: "bg-danger text-white hover:opacity-90 active:scale-[0.98]",
+  primary: "bg-accent text-white hover:bg-accent-hover active:scale-[0.97] shadow-sm",
+  secondary: "bg-bg-elevated border border-border text-text hover:bg-bg-subtle active:scale-[0.97]",
+  ghost: "text-text-secondary hover:bg-bg-subtle hover:text-text",
+  danger: "bg-danger text-white hover:opacity-90 active:scale-[0.97] shadow-sm",
 };
 
 const sizeStyles: Record<ButtonSize, string> = {
-  sm: "h-9 px-3 text-sm rounded-[var(--radius-sm)]",
-  md: "h-11 px-4 text-sm rounded-[var(--radius)]",
-  lg: "h-14 px-6 text-base rounded-[var(--radius)]",
-  icon: "h-11 w-11 rounded-[var(--radius)]",
+  sm: "h-9 px-4 text-sm rounded-full",
+  md: "h-11 px-5 text-sm rounded-full",
+  lg: "h-14 px-7 text-base rounded-full",
+  icon: "h-11 w-11 rounded-full",
 };
 
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
@@ -29,7 +29,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
     <button
       ref={ref}
       className={cn(
-        "inline-flex items-center justify-center gap-2 font-medium transition-all duration-150 disabled:opacity-50 disabled:pointer-events-none select-none",
+        "inline-flex items-center justify-center gap-2 font-medium transition-all duration-200 disabled:opacity-40 disabled:pointer-events-none select-none",
         variantStyles[variant],
         sizeStyles[size],
         className
@@ -76,7 +76,7 @@ export function Badge({ className, color = "default", children, ...props }: Badg
   return (
     <span
       className={cn(
-        "inline-flex items-center gap-1 px-2 py-0.5 text-xs font-semibold rounded-md",
+        "inline-flex items-center gap-1 px-2.5 py-1 text-xs font-semibold rounded-full",
         badgeColors[color],
         className
       )}
@@ -95,7 +95,7 @@ export const Input = forwardRef<
   <input
     ref={ref}
     className={cn(
-      "w-full h-12 px-4 bg-bg-elevated border border-border rounded-[var(--radius)] text-text placeholder:text-text-muted outline-none focus:border-accent transition-colors",
+      "w-full h-12 px-4 bg-bg-elevated border border-border rounded-full text-text placeholder:text-text-muted outline-none focus:border-accent focus:ring-2 focus:ring-accent/20 transition-all",
       className
     )}
     {...props}
@@ -119,12 +119,12 @@ export function Sheet({
   return (
     <div className="fixed inset-0 z-50 flex flex-col justify-end">
       <div
-        className="absolute inset-0 bg-black/40 backdrop-blur-sm"
+        className="absolute inset-0 bg-black/40 backdrop-blur-sm animate-in fade-in duration-200"
         onClick={onClose}
       />
-      <div className="relative bg-bg-elevated border-t border-border rounded-t-[var(--radius-lg)] shadow-[var(--shadow-lg)] max-h-[85vh] overflow-y-auto no-scrollbar safe-bottom">
-        <div className="sticky top-0 bg-bg-elevated px-5 pt-3 pb-2 border-b border-border">
-          <div className="w-10 h-1 bg-border-strong rounded-full mx-auto mb-3" />
+      <div className="relative bg-bg-elevated rounded-t-[var(--radius-lg)] shadow-[var(--shadow-lg)] max-h-[85vh] overflow-y-auto no-scrollbar safe-bottom animate-in slide-in-from-bottom duration-300">
+        <div className="sticky top-0 bg-bg-elevated px-5 pt-4 pb-3 border-b border-border">
+          <div className="w-10 h-1.5 bg-border-strong rounded-full mx-auto mb-3" />
           {title && (
             <h2 className="text-lg font-semibold text-text">{title}</h2>
           )}
@@ -140,7 +140,7 @@ export function Skeleton({ className }: { className?: string }) {
   return (
     <div
       className={cn(
-        "animate-pulse bg-bg-subtle rounded-md",
+        "animate-pulse bg-bg-subtle rounded-[var(--radius-sm)]",
         className
       )}
     />
@@ -172,11 +172,15 @@ export function EmptyState({
   action?: React.ReactNode;
 }) {
   return (
-    <div className="flex flex-col items-center justify-center text-center py-16 px-6">
-      {icon && <div className="text-text-muted mb-4">{icon}</div>}
+    <div className="flex flex-col items-center justify-center text-center py-20 px-6">
+      {icon && (
+        <div className="w-16 h-16 rounded-full bg-bg-subtle flex items-center justify-center text-text-muted mb-4">
+          {icon}
+        </div>
+      )}
       <h3 className="text-lg font-semibold text-text mb-1">{title}</h3>
       {description && (
-        <p className="text-sm text-text-secondary max-w-xs mb-6">{description}</p>
+        <p className="text-sm text-text-secondary max-w-xs mb-6 leading-relaxed">{description}</p>
       )}
       {action}
     </div>

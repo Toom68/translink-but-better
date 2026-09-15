@@ -1,11 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { Card, Badge } from "@/components/ui";
+import { Card } from "@/components/ui";
 import { ArrivalsList } from "@/components/ArrivalsList";
-import { Bus, Train, Sailboat, TramFront, ChevronRight, Star } from "lucide-react";
+import { Bus, Train, Sailboat, TramFront } from "lucide-react";
 import type { Arrival, GTFSStop } from "@/lib/gtfs/types";
-import { useSavedStops } from "@/lib/store/saved-stops";
 
 function ModeIcon({ mode, size = 18 }: { mode: string; size?: number }) {
   const icons: Record<string, typeof Bus> = {
@@ -19,12 +18,10 @@ function ModeIcon({ mode, size = 18 }: { mode: string; size?: number }) {
 }
 
 function getModeFromStop(stop: GTFSStop): string {
-  // TransLink stop codes: train stops have 6-digit codes starting with 6,
-  // bus stops have shorter codes, ferry stops are 6-digit starting with 3
   const code = stop.code || stop.id;
   if (code.length === 6 && code.startsWith("6")) return "rail";
   if (code.length === 6 && code.startsWith("3")) return "ferry";
-  if (stop.locationType === 1) return "rail"; // station
+  if (stop.locationType === 1) return "rail";
   return "bus";
 }
 
@@ -46,18 +43,17 @@ export function StopCard({
 
   return (
     <Link href={`/stops/${stop.id}`} className="block">
-      <Card className="p-4 active:scale-[0.99] transition-transform">
+      <Card className="p-4 active:scale-[0.98] transition-transform duration-200">
         <div className="flex items-start gap-3 mb-2">
-          <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-bg-subtle flex-shrink-0">
+          <div className="flex items-center justify-center w-11 h-11 rounded-full bg-bg-subtle flex-shrink-0">
             <ModeIcon mode={mode} />
           </div>
           <div className="flex-1 min-w-0">
             <h3 className="font-semibold text-text truncate">{displayName}</h3>
-            <p className="text-xs text-text-muted">
+            <p className="text-xs text-text-muted mt-0.5">
               Stop {stop.code || stop.id}
             </p>
           </div>
-          <ChevronRight size={20} className="text-text-muted flex-shrink-0" />
         </div>
 
         {note && (
@@ -82,7 +78,7 @@ export function StopCardSkeleton() {
   return (
     <Card className="p-4">
       <div className="flex items-start gap-3 mb-3">
-        <div className="w-10 h-10 rounded-lg bg-bg-subtle animate-pulse" />
+        <div className="w-11 h-11 rounded-full bg-bg-subtle animate-pulse" />
         <div className="flex-1">
           <div className="h-4 bg-bg-subtle rounded animate-pulse mb-2 w-3/4" />
           <div className="h-3 bg-bg-subtle rounded animate-pulse w-1/4" />
